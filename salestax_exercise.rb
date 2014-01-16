@@ -1,61 +1,74 @@
-
 class SalesTax
-	attr_accessor :quantity, :item_name, :price
-	def initialize(quantity, item_name, price)
-		@quantity = quantity
-		@item_name = item_name
-		@price = price
-	end
+        attr_accessor :quantity, :item_name, :price
+        def initialize(quantity, item_name, price)
+                @quantity = quantity
+                @item_name = item_name
+                @price = price
+        end
 end
 
-class Item < SalesTax
-	def calculate_sales_tax
-		@price * 0.1
-	end
+class ImportDutyOnly < SalesTax #Item pays 5% tax
+        def calculate_sales_tax
+                @price * 0.05
+        end
 
-	def calculate_total
-	@price * calculate_sales_tax
-	end
+ def calculate_total
+        @price + calculate_sales_tax
+        end
 end
 
-class ExemptItem < Item
-	def calculate_sales_tax
-		0
-	end
-	
-	def calculate_total
-		@price
-	end
+class LocallyTaxed < SalesTax # Item pays 10% tax 
+        def calculate_sales_tax
+                @price * 0.1
+        end
+
+        def calculate_total
+        @price + calculate_sales_tax
+        end
 end
 
-class ImportedItem < ExemptItem
-	def calculate_sales_tax
-		@price + 0.10 + @price * 0.05
-	end
+class TaxExempt < LocallyTaxed #Items pays 0% tax
+        def calculate_sales_tax
+                0
+        end
+        
+        def calculate_total
+                @price
+        end
 end
 
-item1 = ExemptItem.new(1, "book", 12.49)
-puts item1.calculate_total
-item2 = Item.new(1, "music CD", 14.99)
+class ImportedItemLocalTax < LocallyTaxed  #Item pays 15% tax
+        def calculate_sales_tax
+                @price * 0.15
+        end
+end
 
-puts item2.calculate_total
-item3= ExemptItem.new(1, "choclate_bar", 0.85)
-puts item3.calculate_total
-puts item1.calculate_sales_tax + item2.calculate_sales_tax + item3.calculate_sales_tax
-puts item1.calculate_total + item2.calculate_total + item3.calculate_total
+item1=TaxExempt.new(1, "book", 12.49)
+puts "#{item1.quantity} #{item1.item_name}: #{item1.calculate_total}"
+item2=LocallyTaxed.new(1,"music CD",14.99)
+puts "#{item2.quantity} #{item2.item_name}: #{item2.calculate_total}"
+item3=TaxExempt.new(1,"chocolate_bar",0.85)
+puts "#{item3.quantity} #{item3.item_name}: #{item3.price}"
+puts "Sales taxes: #{item1.calculate_sales_tax+item2.calculate_sales_tax+item3.calculate_sales_tax}"
+puts "Total: #{item1.calculate_total+ item2.calculate_total+ item3.calculate_total}"
 puts ""
 
-item4= ImportedItem.new(1, "imported box of choclates", 10.50)
-puts item4.calculate_total
-item5= ImportedItem.new(1, "imported bottle of perfume", 54.65)
-puts item5.calculate_total
-puts item4.calculate_total + item5.calculate_sales_tax
-puts item4.calculate_total+item5.calculate_total
+item4 = ImportDutyOnly.new(1, "imported box of chocolates", 10.00) 
+puts "#{item4.quantity} #{item4.item_name}: #{item4.calculate_total}"
+ item5 = ImportedItemLocalTax.new(1,"imported bottle of perfume", 47.50) 
+ puts "#{item5.quantity} #{item5.item_name}: #{item5.calculate_total}"
+ puts "Sales taxes: #{item4.calculate_sales_tax+item5.calculate_sales_tax}"
+ puts "Total: #{item4.calculate_total+ item5.calculate_total}"
+ puts ""
+ 
+item6=ImportedItemLocalTax.new(1,"imported bottle of perfume",27.99)
+puts "#{item6.quantity} #{item6.item_name}: #{item6.calculate_total}"
+item7=LocallyTaxed.new(1,"bottle of perfume",18.99)
+puts "#{item7.quantity} #{item7.item_name}: #{item7.calculate_total}"
+item8=TaxExempt.new(1,"packet of headache pills",9.75)
+puts "#{item8.quantity} #{item8.item_name}: #{item8.calculate_total}"
+item9=ImportDutyOnly.new(1, "imported box of chocolates",11.25) 
+puts "#{item9.quantity} #{item9.item_name}: #{item9.calculate_total}"
+puts "Sales taxes: #{item6.calculate_sales_tax+item7.calculate_sales_tax+item8.calculate_sales_tax+item9.calculate_sales_tax}"
+puts "Total: #{item6.calculate_total+ item7.calculate_total+item8.calculate_sales_tax+item9.calculate_sales_tax}"
 puts ""
-
-item6 =ImportedItem.new(1, "Imported bottle of perfume", 32.19)
-puts item6.calculate_total
-item7 = Item.new(1, "bottle of perfume", 20.89)
-puts item7.calculate_total
-item8 = ExemptItem.new(1, "packet of headache pills", 9.75)
-puts item8.calculate_total
